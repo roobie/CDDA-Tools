@@ -1,0 +1,46 @@
+{
+    "type": "effect_on_condition",
+    "id": "EOC_XEDRA_CHRONOMANCER_KILLED_DIFFICULT_TIME_ENEMY",
+    "eoc_type": "EVENT",
+    "required_event": "character_kills_monster",
+    "//": "Add difficult time related enemies.",
+    "condition": {
+        "and": [
+            {
+                "u_has_trait": "XEDRA_CHRONOMANCER"
+            },
+            {
+                "or": [
+                    {
+                        "compare_string": [
+                            {
+                                "context_val": "victim_type"
+                            },
+                            "mon_tindalos",
+                            "mon_zombie_monochrome_3",
+                            "mon_lieutenant_shadow"
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    "effect": [
+        {
+            "math": [
+                "u_vitamin('xedra_chronomancer_insight') += 50"
+            ]
+        },
+        {
+            "if": {
+                "math": [
+                    "global_xedra_chronomancy_setting_hide_insight_messages != 1"
+                ]
+            },
+            "then": {
+                "u_message": "You gain a large amount of insight into the workings of time!",
+                "type": "info"
+            }
+        }
+    ]
+}

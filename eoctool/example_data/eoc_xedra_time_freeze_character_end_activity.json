@@ -1,0 +1,23 @@
+{
+    "type": "effect_on_condition",
+    "id": "eoc_xedra_time_freeze_character_end_activity",
+    "eoc_type": "EVENT",
+    "required_event": "character_loses_effect",
+    "condition": {
+        "compare_string": [
+            "effect_xedra_time_freeze",
+            {
+                "context_val": "effect"
+            }
+        ]
+    },
+    "effect": [
+        "u_cancel_activity",
+        {
+            "run_eocs": "EOC_XEDRA_TIME_LOAD_VARIABLES_DYNAMIC",
+            "variables": {
+                "xedra_chronomancer_prefix": "time_freeze"
+            }
+        }
+    ]
+}

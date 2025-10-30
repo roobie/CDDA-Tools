@@ -1,0 +1,27 @@
+{
+    "type": "effect_on_condition",
+    "id": "EOC_XEDRA_TRACK_LAST_HIT",
+    "eoc_type": "EVENT",
+    "required_event": "character_takes_damage",
+    "//": "This value is intended to be used for time magic related powers.  It will get reset by their use, and should not be used for general purpose information.",
+    "effect": [
+        {
+            "math": [
+                "u_xedra_last_damage_taken=_damage"
+            ]
+        },
+        {
+            "math": [
+                "u_xedra_last_pain_taken=_pain"
+            ]
+        },
+        {
+            "copy_var": {
+                "context_val": "bodypart"
+            },
+            "target_var": {
+                "u_val": "xedra_last_damage_taken_bodypart"
+            }
+        }
+    ]
+}

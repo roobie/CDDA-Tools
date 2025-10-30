@@ -1,0 +1,24 @@
+{
+    "id": "EOC_XEDRA_CHRONOMANCER_STABLE_TIMELOOP_PREVENT_DEATH",
+    "type": "effect_on_condition",
+    "eoc_type": "PREVENT_DEATH",
+    "condition": {
+        "u_has_effect": "effect_xedra_chronomancer_stable_timeloop"
+    },
+    "effect": [
+        {
+            "math": [
+                "u_vitamin('blood') = 0"
+            ]
+        },
+        "u_prevent_death",
+        {
+            "math": [
+                "u_hp('ALL') = 1000"
+            ]
+        },
+        {
+            "u_lose_effect": "effect_xedra_chronomancer_stable_timeloop"
+        }
+    ]
+}

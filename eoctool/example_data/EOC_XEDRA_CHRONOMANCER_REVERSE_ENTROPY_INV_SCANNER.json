@@ -1,0 +1,52 @@
+{
+    "type": "effect_on_condition",
+    "id": "EOC_XEDRA_CHRONOMANCER_REVERSE_ENTROPY_INV_SCANNER",
+    "condition": {
+        "u_has_effect": "effect_xedra_chronomancer_reverse_entropy"
+    },
+    "effect": [
+        {
+            "run_eocs": "EOC_XEDRA_CHRONOMANCER_REVERSE_ENTROPY_INV_SCANNER",
+            "time_in_future": {
+                "math": [
+                    "max( xedra_chron_spell_calc( u_spell_level('xedra_chronomancer_reverse_entropy'), -2, 60 ), 1 )"
+                ]
+            }
+        },
+        {
+            "u_run_inv_eocs": "all",
+            "search_data": [
+                {
+                    "is_chargeable": true
+                }
+            ],
+            "true_eocs": [
+                {
+                    "id": "EOC_XEDRA_CHRONOMANCER_REVERSE_ENTROPY_INV_SCANNER_ENERGY",
+                    "effect": [
+                        {
+                            "math": [
+                                "n_val('power') += xedra_chron_spell_calc( u_spell_level('xedra_chronomancer_reverse_entropy'), 0.1, 1 )"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "u_run_inv_eocs": "all",
+            "true_eocs": [
+                {
+                    "id": "EOC_XEDRA_CHRONOMANCER_REVERSE_ENTROPY_INV_SCANNER_DURABILITY",
+                    "effect": [
+                        {
+                            "math": [
+                                "n_hp('ALL') += xedra_chron_spell_calc( u_spell_level('xedra_chronomancer_reverse_entropy'), 0.1, 1 )"
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

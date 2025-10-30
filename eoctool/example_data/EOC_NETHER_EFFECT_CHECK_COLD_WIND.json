@@ -1,0 +1,41 @@
+{
+    "type": "effect_on_condition",
+    "id": "EOC_NETHER_EFFECT_CHECK_COLD_WIND",
+    "//": "Base is 3% chance from 15 attunement to 50 attunement, then scaling up 0.1% per attunement up to 11% chance at 130 attunement, then scaling up 0.25% chance per attunement up to 41% chance at max, plus 1/10th the Difficulty squared.",
+    "condition": {
+        "math": [
+            "u_vitamin('vitamin_psionic_drain') >= 15"
+        ]
+    },
+    "effect": [
+        {
+            "if": {
+                "x_in_y_chance": {
+                    "x": {
+                        "math": [
+                            "( clamp( (u_vitamin('vitamin_psionic_drain') - 50), 0, 80) + clamp( ( (u_vitamin('vitamin_psionic_drain') - 130) * 2.5 ), 0, 375) + (nether_attune_difficulty_scaler(u_latest_channeled_power_difficulty)) + 30) + nether_attune_torrential_channeling_influence()"
+                        ]
+                    },
+                    "y": 1000
+                }
+            },
+            "then": [
+                {
+                    "u_message": "The temperature suddenly drops!",
+                    "type": "bad"
+                },
+                {
+                    "u_cast_spell": {
+                        "id": "nether_attunement_cold_chill",
+                        "hit_self": true
+                    }
+                }
+            ]
+        }
+    ],
+    "false_effect": [
+        {
+            "run_eocs": "EOC_PSIONICS_NETHER_ATTUNEMENT_CONSEQUENCES"
+        }
+    ]
+}

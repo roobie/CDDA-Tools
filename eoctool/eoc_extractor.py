@@ -1,6 +1,7 @@
 import os
 import re
 import json
+import argparse
 
 def extract_eoc_ids(file_path):
     """Extract EOC IDs from the given Python file."""
@@ -25,9 +26,14 @@ def find_matching_json_files(eoc_ids, search_dir):
                 file_path = os.path.join(root, file_name)
                 with open(file_path, 'r', encoding='utf-8') as json_file:
                     try:
-                        data = json.load(json_file)
-                        if data.get('id') in eoc_ids:
-                            matched_files[data['id']] = data
+                        # Read as text first to check for potential matches
+                        content = json_file.read()
+                        if any(eoc_id in content for eoc_id in eoc_ids):
+                            # Parse as JSON only if a match is found
+                            arr = json.loads(content)
+                            for data in arr:
+                                if isinstance(data, dict) and data.get('id') in eoc_ids:
+                                    matched_files[data['id']] = data
                     except json.JSONDecodeError:
                         print(f"Warning: Failed to parse JSON in file {file_path}")
 
@@ -43,10 +49,17 @@ def save_json_objects(json_objects, output_dir):
             json.dump(data, output_file, indent=4)
 
 def main():
-    # Input paths
-    input_python_file = "c:/devel/cdda.ext/eoctool/base_test.py"  # Change as needed
-    json_search_dir = "c:/devel/json_data"  # Directory containing JSON files
-    output_dir = "c:/devel/output_json"  # Directory to save matched JSON files
+    parser = argparse.ArgumentParser(description="Extract EOC IDs and match JSON files.")
+    parser.add_argument("input_python_file", type=str, help="Path to the input Python file.")
+    parser.add_argument("json_search_dir", type=str, help="Directory containing JSON files.")
+    parser.add_argument("output_dir", type=str, help="Directory to save matched JSON files.")
+
+    args = parser.parse_args()
+
+    # Resolve paths to absolute paths
+    input_python_file = os.path.abspath(args.input_python_file)
+    json_search_dir = os.path.abspath(args.json_search_dir)
+    output_dir = os.path.abspath(args.output_dir)
 
     # Step 1: Extract EOC IDs from the Python file
     eoc_ids = extract_eoc_ids(input_python_file)
