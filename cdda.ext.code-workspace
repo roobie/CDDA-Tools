@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+		,
+		{
+			"path": "../Cataclysm-DDA"
+		}
+	],
+	"settings": {}
+}
