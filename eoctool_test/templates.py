@@ -23,6 +23,13 @@ def condition_x_in_y(x: Expr, y: Expr) -> Dict[str, Dict[str, Expr]]:
     }
 
 
+def listify(item: Expr | List[Expr]) -> List[Expr]:
+    if isinstance(item, list):
+        return item
+    else:
+        return [item]
+
+
 def if_then_else(
     id: str, condition: Dict[str, Expr], effect: Expr, false_effect: Expr | None = None
 ) -> Dict[str, Expr]:
@@ -33,12 +40,16 @@ def if_then_else(
     result = {
         "id": id,
         "condition": condition,
-        "effect": effect,
+        "effect": listify(effect),
     }
     if false_effect is not None:
         result["false_effect"] = false_effect
 
     return result
+
+
+def run_eocs(eoc_id: str | List[Expr]) -> Dict[str, str] | Dict[str, List[Expr]]:
+    return {"run_eocs": eoc_id}
 
 
 def example1():

@@ -4,7 +4,7 @@ from eoctool.builder import EOCBuilder
 from eoctool.enums import GameEvent
 from .MindOverMatter import Eocs, U
 from .base_eoc_json_test import BaseEOCJsonTest
-from .templates import condition_x_in_y, math, if_then_else
+from .templates import condition_x_in_y, math, if_then_else, run_eocs
 
 JSON_FILE_PATH = "eoctool_test/data/EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT.json"
 
@@ -75,17 +75,10 @@ class Test_EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT(BaseEOCJsonTest, TestCase):
                                                     condition=condition_x_in_y(
                                                         x=math(MATH_ABOVE),
                                                         y=Y_BASE,
-                                                        #     "x_in_y_chance": {
-                                                        #         "x": {"math": [MATH_ABOVE]},
-                                                        #         "y": Y_BASE,
-                                                        #     }
-                                                        # }
                                                     ),
-                                                    effect=[
-                                                        {
-                                                            "run_eocs": Eocs.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD
-                                                        }
-                                                    ],
+                                                    effect=run_eocs(
+                                                        Eocs.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD
+                                                    ),
                                                 )
                                             ]
                                         }
