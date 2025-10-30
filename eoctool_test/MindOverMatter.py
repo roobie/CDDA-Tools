@@ -1,6 +1,13 @@
 # from enum import Enum
 
 
+class Eocs:
+    EOC_DRAIN_EFFECT_CHECK_HEADACHE = "EOC_DRAIN_EFFECT_CHECK_HEADACHE"
+    EOC_PSIONICS_NETHER_ATTUNEMENT_CONSEQUENCES = (
+        "EOC_PSIONICS_NETHER_ATTUNEMENT_CONSEQUENCES"
+    )
+
+
 class Vitamins:
     PSIONIC_DRAIN = "vitamin_psionic_drain"
     U_VITAMIN_PSIONIC_DRAIN = "u_vitamin('%s')" % PSIONIC_DRAIN
