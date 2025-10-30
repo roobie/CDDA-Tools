@@ -34,5 +34,7 @@ class Vitamins:
 
 
 class U:
+    LATEST_CHANNELED_POWER_DIFFICULTY = "u_latest_channeled_power_difficulty"
+
     class Vitamin:
         PSIONIC_DRAIN = "u_vitamin('%s')" % Vitamins.PSIONIC_DRAIN

@@ -4,24 +4,35 @@ from eoctool.builder import EOCBuilder
 from eoctool.enums import GameEvent
 from .MindOverMatter import Eocs, U
 from .base_eoc_json_test import BaseEOCJsonTest
-from .templates import condition_x_in_y, math, if_then_else, run_eocs
+from .templates import (
+    condition_x_in_y,
+    math,
+    if_then_else,
+    run_eoc,
+    run_eocs,
+    test_eoc,
+    when,
+)
 
 JSON_FILE_PATH = "eoctool_test/data/EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT.json"
 
 Y_BASE = 100
 
-MATH_SET_LATEST = "u_latest_channeled_power_difficulty = _difficulty"
-MATH_VITAMIN_CHECK = "u_vitamin('vitamin_psionic_drain') < 15"
+MATH_SET_LATEST = f"{U.LATEST_CHANNELED_POWER_DIFFICULTY} = _difficulty"
+MATH_VITAMIN_CHECK = f"{U.Vitamin.PSIONIC_DRAIN} < 15"
+MATH_LATEST_CHANNELED_POWER_DIFFICULTY_SQUARED = (
+    f"({U.LATEST_CHANNELED_POWER_DIFFICULTY} * {U.LATEST_CHANNELED_POWER_DIFFICULTY})"
+)
 MATH_BELOW = (
-    "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty)"
+    MATH_LATEST_CHANNELED_POWER_DIFFICULTY_SQUARED + ""
     " + (u_nether_conduit_repeated_channeling_value / 3)"
     " + (u_vitamin('vitamin_maintained_powers') * 3)"
 )
 MATH_ABOVE = (
-    "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty)"
+    MATH_LATEST_CHANNELED_POWER_DIFFICULTY_SQUARED + ""
     " + u_nether_conduit_repeated_channeling_value"
     " + (u_vitamin('vitamin_maintained_powers') * 3)"
-    # ---^ and extra space removed here, because it was causing test failures since a diff showed up.
+    # ^--- extra space removed here, because it was causing test failures since a diff occured.
     # The explanation is that the serialization removed extra spaces, so the generated JSON didn't match the static file.
     # That is to say that the static JSON has been amended in the same way.
 )
@@ -35,57 +46,50 @@ class Test_EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT(BaseEOCJsonTest, TestCase):
                 EOCBuilder(Eocs.EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT)
                 .with_event(GameEvent.SPELLCASTING_FINISH)
                 .with_condition(
-                    {
-                        "test_eoc": Eocs.EOC_CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST
-                    }
+                    test_eoc(
+                        Eocs.EOC_CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST
+                    )
                 )
                 .with_effect(
                     [
-                        {"math": [MATH_SET_LATEST]},
-                        {
-                            "run_eocs": [
-                                {
-                                    "id": Eocs.EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
-                                    "condition": {"math": [MATH_VITAMIN_CHECK]},
-                                    "effect": [
-                                        {
-                                            "run_eocs": [
-                                                {
-                                                    "id": Eocs.EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
-                                                    "condition": {
-                                                        "x_in_y_chance": {
-                                                            "x": {"math": [MATH_BELOW]},
-                                                            "y": Y_BASE,
-                                                        }
-                                                    },
-                                                    "effect": [
-                                                        {
-                                                            "run_eocs": Eocs.EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD
-                                                        }
-                                                    ],
-                                                }
-                                            ]
-                                        }
-                                    ],
-                                    "false_effect": [
-                                        {
-                                            "run_eocs": [
-                                                if_then_else(
-                                                    id=Eocs.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
-                                                    condition=condition_x_in_y(
-                                                        x=math(MATH_ABOVE),
-                                                        y=Y_BASE,
-                                                    ),
-                                                    effect=run_eocs(
-                                                        Eocs.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD
-                                                    ),
-                                                )
-                                            ]
-                                        }
-                                    ],
-                                }
-                            ]
-                        },
+                        math(MATH_SET_LATEST),
+                        run_eocs(
+                            when(
+                                math(MATH_VITAMIN_CHECK),
+                                id=Eocs.EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
+                            )
+                            .then(
+                                run_eocs(
+                                    when(
+                                        condition_x_in_y(x=math(MATH_BELOW), y=Y_BASE),
+                                        id=Eocs.EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
+                                    )
+                                    .then(
+                                        run_eoc(
+                                            Eocs.EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD
+                                        )
+                                    )
+                                    .build()
+                                )
+                            )
+                            .otherwise(
+                                [
+                                    run_eocs(
+                                        if_then_else(
+                                            id=Eocs.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
+                                            condition=condition_x_in_y(
+                                                x=math(MATH_ABOVE),
+                                                y=Y_BASE,
+                                            ),
+                                            effect=run_eoc(
+                                                Eocs.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD
+                                            ),
+                                        )
+                                    )
+                                ]
+                            )
+                            .build()
+                        ),
                     ]
                 )
             ),
