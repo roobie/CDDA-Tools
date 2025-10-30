@@ -66,4 +66,5 @@ def example_event_eoc_with_condition():
 
     print(EOCSerializer().serialize(eoc))
 
+
 example_event_eoc_with_condition()

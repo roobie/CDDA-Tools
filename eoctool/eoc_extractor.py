@@ -19,6 +19,7 @@ import re
 import json
 import argparse
 
+
 def extract_eoc_ids(file_path):
     """
     Extract EOC IDs from the given Python file.
@@ -36,13 +37,14 @@ def extract_eoc_ids(file_path):
     eoc_ids = []
     eoc_builder_pattern = re.compile(r"EOCBuilder\(\"(.*?)\"\)")
 
-    with open(file_path, 'r', encoding='utf-8') as file:
+    with open(file_path, "r", encoding="utf-8") as file:
         for line in file:
             match = eoc_builder_pattern.search(line)
             if match:
                 eoc_ids.append(match.group(1))
 
     return eoc_ids
+
 
 def find_matching_json_files(eoc_ids, search_dir):
     """
@@ -65,9 +67,9 @@ def find_matching_json_files(eoc_ids, search_dir):
 
     for root, _, files in os.walk(search_dir):
         for file_name in files:
-            if file_name.endswith('.json'):
+            if file_name.endswith(".json"):
                 file_path = os.path.join(root, file_name)
-                with open(file_path, 'r', encoding='utf-8') as json_file:
+                with open(file_path, "r", encoding="utf-8") as json_file:
                     try:
                         # Read as text first to check for potential matches
                         content = json_file.read()
@@ -77,12 +79,13 @@ def find_matching_json_files(eoc_ids, search_dir):
                             # Parse as JSON only if a match is found
                             arr = json.loads(content)
                             for data in arr:
-                                if isinstance(data, dict) and data.get('id') in eoc_ids:
-                                    matched_files[data['id']] = data
+                                if isinstance(data, dict) and data.get("id") in eoc_ids:
+                                    matched_files[data["id"]] = data
                     except json.JSONDecodeError:
                         print(f"Warning: Failed to parse JSON in file {file_path}")
 
     return matched_files
+
 
 def save_json_objects(json_objects, output_dir):
     """
@@ -101,8 +104,9 @@ def save_json_objects(json_objects, output_dir):
 
     for eoc_id, data in json_objects.items():
         output_path = os.path.join(output_dir, f"{eoc_id}.json")
-        with open(output_path, 'w', encoding='utf-8') as output_file:
+        with open(output_path, "w", encoding="utf-8") as output_file:
             json.dump(data, output_file, indent=4)
+
 
 def main():
     """
@@ -119,10 +123,18 @@ def main():
         json_search_dir: Directory containing JSON files to search.
         output_dir: Directory to save matched JSON files.
     """
-    parser = argparse.ArgumentParser(description="Extract EOC IDs and match JSON files.")
-    parser.add_argument("input_python_file", type=str, help="Path to the input Python file.")
-    parser.add_argument("json_search_dir", type=str, help="Directory containing JSON files.")
-    parser.add_argument("output_dir", type=str, help="Directory to save matched JSON files.")
+    parser = argparse.ArgumentParser(
+        description="Extract EOC IDs and match JSON files."
+    )
+    parser.add_argument(
+        "input_python_file", type=str, help="Path to the input Python file."
+    )
+    parser.add_argument(
+        "json_search_dir", type=str, help="Directory containing JSON files."
+    )
+    parser.add_argument(
+        "output_dir", type=str, help="Directory to save matched JSON files."
+    )
 
     args = parser.parse_args()
 
@@ -142,6 +154,7 @@ def main():
     # Step 3: Save matched JSON objects
     save_json_objects(matched_json_objects, output_dir)
     print(f"Saved matched JSON objects to {output_dir}")
+
 
 if __name__ == "__main__":
     """
