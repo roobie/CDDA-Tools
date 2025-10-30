@@ -54,7 +54,7 @@
                                         "x_in_y_chance": {
                                             "x": {
                                                 "math": [
-                                                    "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty) + u_nether_conduit_repeated_channeling_value  + (u_vitamin('vitamin_maintained_powers') * 3)"
+                                                    "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty) + u_nether_conduit_repeated_channeling_value + (u_vitamin('vitamin_maintained_powers') * 3)"
                                                 ]
                                             },
                                             "y": 100

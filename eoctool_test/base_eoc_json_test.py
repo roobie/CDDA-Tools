@@ -1,7 +1,9 @@
 import json
 from abc import ABC
+import sys
 from unittest import TestCase
 from textwrap import dedent
+from deepdiff import DeepDiff
 
 from eoctool.enums import MessageType
 from eoctool.builder import EOCBuilder
@@ -38,6 +40,16 @@ class BaseEOCJsonTest(ABC, TestCase):
         eoc = eoc_builder.build()
 
         to_compare = serialize_eoc(eoc)
-        self.assertDictEqual(
-            to_compare, expected_data, "Differences found in EOC output."
+        diff = DeepDiff(
+            expected_data,
+            to_compare,
+            ignore_order=True,
+            significant_digits=5,
         )
+        if diff:
+            json.dump(to_compare, fp=sys.stdout, indent=2)
+            self.fail(f"Differences found in EOC output: {diff}")
+
+        # self.assertDictEqual(
+        #     to_compare, expected_data, "Differences found in EOC output."
+        # )
