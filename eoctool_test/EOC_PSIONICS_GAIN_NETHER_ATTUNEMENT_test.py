@@ -4,6 +4,7 @@ from eoctool.builder import EOCBuilder
 from eoctool.enums import GameEvent
 from .MindOverMatter import Eocs, U
 from .base_eoc_json_test import BaseEOCJsonTest
+from .templates import condition_x_in_y, math, if_then_else
 
 JSON_FILE_PATH = "eoctool_test/data/EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT.json"
 
@@ -69,20 +70,23 @@ class Test_EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT(BaseEOCJsonTest, TestCase):
                                     "false_effect": [
                                         {
                                             "run_eocs": [
-                                                {
-                                                    "id": Eocs.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
-                                                    "condition": {
-                                                        "x_in_y_chance": {
-                                                            "x": {"math": [MATH_ABOVE]},
-                                                            "y": Y_BASE,
-                                                        }
-                                                    },
-                                                    "effect": [
+                                                if_then_else(
+                                                    id=Eocs.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
+                                                    condition=condition_x_in_y(
+                                                        x=math(MATH_ABOVE),
+                                                        y=Y_BASE,
+                                                        #     "x_in_y_chance": {
+                                                        #         "x": {"math": [MATH_ABOVE]},
+                                                        #         "y": Y_BASE,
+                                                        #     }
+                                                        # }
+                                                    ),
+                                                    effect=[
                                                         {
                                                             "run_eocs": Eocs.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD
                                                         }
                                                     ],
-                                                }
+                                                )
                                             ]
                                         }
                                     ],
