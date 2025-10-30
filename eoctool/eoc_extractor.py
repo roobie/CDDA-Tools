@@ -1,10 +1,38 @@
+"""
+EOC Extractor Tool
+
+This script extracts EOC (Effect On Condition) IDs from a Python file, searches for matching JSON objects in a directory,
+and saves the matched objects to an output directory. It is optimized for large datasets by first scanning files as text
+before parsing them as JSON.
+
+Usage:
+    python -m eoctool.eoc_extractor <input_python_file> <json_search_dir> <output_dir>
+
+Arguments:
+    input_python_file: Path to the Python file containing EOCBuilder invocations.
+    json_search_dir: Directory containing JSON files to search.
+    output_dir: Directory to save matched JSON files.
+"""
+
 import os
 import re
 import json
 import argparse
 
 def extract_eoc_ids(file_path):
-    """Extract EOC IDs from the given Python file."""
+    """
+    Extract EOC IDs from the given Python file.
+
+    Args:
+        file_path (str): Path to the Python file to scan.
+
+    Returns:
+        list: A list of EOC IDs extracted from the file.
+
+    Implementation Details:
+        - Uses a regular expression to find invocations of EOCBuilder with an ID string.
+        - Assumes IDs are passed as the first argument to EOCBuilder in double quotes.
+    """
     eoc_ids = []
     eoc_builder_pattern = re.compile(r"EOCBuilder\(\"(.*?)\"\)")
 
@@ -17,7 +45,22 @@ def extract_eoc_ids(file_path):
     return eoc_ids
 
 def find_matching_json_files(eoc_ids, search_dir):
-    """Find JSON files in the directory whose 'id' matches any of the EOC IDs."""
+    """
+    Find JSON files in the directory whose 'id' matches any of the EOC IDs.
+
+    Args:
+        eoc_ids (list): List of EOC IDs to match.
+        search_dir (str): Directory to search for JSON files.
+
+    Returns:
+        dict: A dictionary where keys are EOC IDs and values are the corresponding JSON objects.
+
+    Implementation Details:
+        - Scans each JSON file as plain text to check for potential matches before parsing.
+        - Parses the file as JSON only if a match is found in the text.
+        - Handles JSON files containing arrays of objects.
+        - Skips files that fail to parse as JSON, logging a warning.
+    """
     matched_files = {}
 
     for root, _, files in os.walk(search_dir):
@@ -28,6 +71,8 @@ def find_matching_json_files(eoc_ids, search_dir):
                     try:
                         # Read as text first to check for potential matches
                         content = json_file.read()
+                        # The `any` function will short-circuit
+                        # - i.e. if the first match is found, it won't check the rest
                         if any(eoc_id in content for eoc_id in eoc_ids):
                             # Parse as JSON only if a match is found
                             arr = json.loads(content)
@@ -40,7 +85,18 @@ def find_matching_json_files(eoc_ids, search_dir):
     return matched_files
 
 def save_json_objects(json_objects, output_dir):
-    """Save JSON objects to the output directory with filenames as their IDs."""
+    """
+    Save JSON objects to the output directory with filenames as their IDs.
+
+    Args:
+        json_objects (dict): Dictionary of JSON objects to save.
+        output_dir (str): Directory to save the JSON files.
+
+    Implementation Details:
+        - Creates the output directory if it does not exist.
+        - Saves each JSON object as a file named <id>.json.
+        - Uses pretty-printing for JSON output.
+    """
     os.makedirs(output_dir, exist_ok=True)
 
     for eoc_id, data in json_objects.items():
@@ -49,6 +105,20 @@ def save_json_objects(json_objects, output_dir):
             json.dump(data, output_file, indent=4)
 
 def main():
+    """
+    Main function to parse arguments and execute the extraction process.
+
+    Steps:
+        1. Parse command-line arguments to get input paths.
+        2. Extract EOC IDs from the input Python file.
+        3. Search for matching JSON files in the specified directory.
+        4. Save the matched JSON objects to the output directory.
+
+    Command-Line Arguments:
+        input_python_file: Path to the Python file containing EOCBuilder invocations.
+        json_search_dir: Directory containing JSON files to search.
+        output_dir: Directory to save matched JSON files.
+    """
     parser = argparse.ArgumentParser(description="Extract EOC IDs and match JSON files.")
     parser.add_argument("input_python_file", type=str, help="Path to the input Python file.")
     parser.add_argument("json_search_dir", type=str, help="Directory containing JSON files.")
@@ -74,4 +144,9 @@ def main():
     print(f"Saved matched JSON objects to {output_dir}")
 
 if __name__ == "__main__":
+    """
+    Example invocation:
+    # in cdda.ext on master (cdda.ext/)
+    ❯ python -m eoctool.eoc_extractor eoctool/base_test.py ..\Cataclysm-DDA\data eoctool/example_data/
+    """
     main()

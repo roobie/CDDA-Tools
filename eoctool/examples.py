@@ -1,7 +1,6 @@
 from eoctool.data import (
     AndCondition,
     GiveAchievementEffect,
-    OrCondition,
     NotCondition,
     HasAnyTraitCondition,
     RunEOCsEffect,
