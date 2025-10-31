@@ -16,6 +16,8 @@ import {
   xInYChance,
   PERCENT_MAX,
 } from "@/templates";
+import { MindOverMatter } from "./MindOverMatter";
+import { CDDA } from "./CDDA";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,7 +25,7 @@ const __dirname = path.dirname(__filename);
 describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
   const pathToJson = path.join(
     __dirname,
-    "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT.json"
+    "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT.json",
   );
   const targetJson = await fs.readFile(pathToJson, "utf-8");
   const targetData = JSON.parse(targetJson);
@@ -107,57 +109,22 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
 }
     */
     // example; act
-    const vitamins = {
-      psionic_drain: "vitamin_psionic_drain",
-      maintained_powers: "vitamin_maintained_powers",
+
+    const thresholds = {
+      psionic_drain: 15,
     };
-    const vars = {
-      vitamins,
-      eoc: {
-        PSIONICS_GAIN_NETHER_ATTUNEMENT: "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT",
-        PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK:
-          "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK",
-        RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER:
-          "EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER",
-        RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER:
-          "EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER",
-        RAISE_ATTUNEMENT_BELOW_THRESHOLD:
-          "EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD",
-        RAISE_ATTUNEMENT_ABOVE_THRESHOLD:
-          "EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD",
-        CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST:
-          "EOC_CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST",
-      },
-      events: {
-        ON_DAY_START: "on_day_start",
-        SPELLCASTING_FINISH: "spellcasting_finish",
-      },
-      u: {
-        latest_channeled_power_difficulty:
-          "u_latest_channeled_power_difficulty",
-        nether_conduit_repeated_channeling_value:
-          "u_nether_conduit_repeated_channeling_value",
-        vitamin: {
-          psionic_drain: `u_vitamin('${vitamins.psionic_drain}')`,
-          maintained_powers: `u_vitamin('${vitamins.maintained_powers}')`,
-        },
-      },
-      placeholder: { difficulty: "_difficulty" },
-      thresholds: {
-        psionic_drain: 15,
-      },
-      factors: {
-        maintained_powers_multiplier: 3,
-        repeated_channeling_below_threshold_divisor: 3,
-      },
+    const factors = {
+      maintained_powers_multiplier: 3,
+      repeated_channeling_below_threshold_divisor: 3,
     };
 
     // build nested pieces with intermediate variables for clarity
     // build math expressions from vars to avoid magic literals
-    const latest = vars.u.latest_channeled_power_difficulty;
-    const repeated = vars.u.nether_conduit_repeated_channeling_value;
-    const countMaintainedActivePowers = vars.u.vitamin.maintained_powers;
-    const currentPsionicDrain = vars.u.vitamin.psionic_drain;
+    const latest = MindOverMatter.u.latest_channeled_power_difficulty;
+    const repeated = MindOverMatter.u.nether_conduit_repeated_channeling_value;
+    const countMaintainedActivePowers =
+      MindOverMatter.u.vitamin.maintained_powers;
+    const currentPsionicDrain = MindOverMatter.u.vitamin.psionic_drain;
 
     /*
     Summary of what the math actually does (gameplay perspective)
@@ -182,55 +149,54 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
     const latestSq = mul(latest, latest);
     const belowExpr = add(
       latestSq,
-      div(repeated, vars.factors.repeated_channeling_below_threshold_divisor),
-      mul(
-        countMaintainedActivePowers,
-        vars.factors.maintained_powers_multiplier
-      )
+      div(repeated, factors.repeated_channeling_below_threshold_divisor),
+      mul(countMaintainedActivePowers, factors.maintained_powers_multiplier),
     );
     const aboveExpr = add(
       latestSq,
       repeated,
-      mul(
-        countMaintainedActivePowers,
-        vars.factors.maintained_powers_multiplier
-      )
+      mul(countMaintainedActivePowers, factors.maintained_powers_multiplier),
     );
 
     const belowCheckerRunEocs = runEocs([
       effectOnCondition({
-        id: vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
+        id: MindOverMatter.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
         condition: xInYChance(belowExpr, PERCENT_MAX),
-        effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD)],
+        effect: [runEocs(MindOverMatter.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD)],
       }),
     ]);
 
     const aboveCheckerRunEocs = runEocs([
       effectOnCondition({
-        id: vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
+        id: MindOverMatter.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
         condition: xInYChance(aboveExpr, PERCENT_MAX),
-        effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD)],
+        effect: [runEocs(MindOverMatter.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD)],
       }),
     ]);
 
     const scalingCheck = effectOnCondition({
-      id: vars.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
+      id: MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
       condition: mathCondition(
-        `${currentPsionicDrain} < ${vars.thresholds.psionic_drain}`
+        `${currentPsionicDrain} < ${thresholds.psionic_drain}`,
       ),
       effect: [belowCheckerRunEocs],
       false_effect: [aboveCheckerRunEocs],
     });
 
-    const builder = new EOCBuilder(vars.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT)
-      .with_event(vars.events.SPELLCASTING_FINISH)
+    const builder = new EOCBuilder(
+      MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT,
+    )
+      .with_event(CDDA.events.SPELLCASTING_FINISH)
       .with_condition(
-        test_eoc(vars.eoc.CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST)
+        test_eoc(
+          MindOverMatter.eoc
+            .CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST,
+        ),
       )
       .with_effect([
         setField(
-          vars.u.latest_channeled_power_difficulty,
-          vars.placeholder.difficulty
+          MindOverMatter.u.latest_channeled_power_difficulty,
+          MindOverMatter.placeholder.difficulty,
         ),
         runEocs([scalingCheck]),
       ]);
