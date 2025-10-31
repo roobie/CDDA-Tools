@@ -65,7 +65,34 @@ export function mul(...args: (string | number)[]): string {
 
 export function div(
   numerator: string | number,
-  denominator: string | number
+  denominator: string | number,
 ): string {
   return `(${numerator} / ${denominator})`;
+}
+
+// Small helpers for common game EOC actions seen in real mod JSON (misc_eoc.json)
+export function uHasEffect(effect: string): any {
+  return { u_has_effect: effect };
+}
+
+export function uMessage(message: string, type?: string): any {
+  const out: any = { u_message: message };
+  if (type) out.type = type;
+  return out;
+}
+
+export function uAddEffect(
+  effect: string,
+  duration?: string | number | any,
+): any {
+  const out: any = { u_add_effect: effect };
+  if (duration !== undefined) out.duration = duration;
+  return out;
+}
+
+export function uCastSpell(
+  opts: string | { id: string; min_level?: number },
+): any {
+  if (typeof opts === "string") return { u_cast_spell: { id: opts } };
+  return { u_cast_spell: opts };
 }
