@@ -1,0 +1,24 @@
+{
+  "folders": [
+    { "path": "../../Cataclysm-DDA/doc" },
+    { "path": "../../Cataclysm-DDA/data" },
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[python]": {
+      "editor.defaultFormatter": "charliermarsh.ruff"
+    },
+    "editor.formatOnSave": true,
+    "python.testing.unittestArgs": ["-v", "-s", ".", "-p", "*_test.py"],
+    "python.testing.pytestEnabled": false,
+    "python.testing.unittestEnabled": true
+  }
+}

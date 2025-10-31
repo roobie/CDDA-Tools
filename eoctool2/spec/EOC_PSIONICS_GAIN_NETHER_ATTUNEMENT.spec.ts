@@ -1,17 +1,21 @@
 import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
-import { EOCBuilder } from "../src/builder";
+import { EOCBuilder } from "@/builder";
 import { describe, expect, it } from "vitest";
 import {
   setField,
   test_eoc,
   runEocs,
+  add,
+  mul,
+  div,
   runEocsSingle,
   effectOnCondition,
   mathCondition,
   xInYChance,
-} from "../src/templates";
+  PERCENT_MAX,
+} from "@/templates";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -142,23 +146,61 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
       thresholds: {
         psionic_drain: 15,
       },
+      factors: {
+        maintained_powers_multiplier: 3,
+        repeated_channeling_below_threshold_divisor: 3,
+      },
     };
 
     // build nested pieces with intermediate variables for clarity
     // build math expressions from vars to avoid magic literals
     const latest = vars.u.latest_channeled_power_difficulty;
     const repeated = vars.u.nether_conduit_repeated_channeling_value;
-    const maintainedVitaminCall = vars.u.vitamin.maintained_powers;
-    const psionicDrainVitaminCall = vars.u.vitamin.psionic_drain;
+    const countMaintainedActivePowers = vars.u.vitamin.maintained_powers;
+    const currentPsionicDrain = vars.u.vitamin.psionic_drain;
 
-    const latestSq = `(${latest} * ${latest})`;
-    const belowExpr = `${latestSq} + (${repeated} / 3) + (${maintainedVitaminCall} * 3)`;
-    const aboveExpr = `${latestSq} + ${repeated} + (${maintainedVitaminCall} * 3)`;
+    /*
+    Summary of what the math actually does (gameplay perspective)
+
+    - The expression computes a percentage-style chance to run an "increase attunement" EOC:
+      - x_in_y_chance.x is the computed value; y = 100 should be interpreted as the value is treated as a percent chance.
+    - Components and their gameplay meaning:
+      - latest channeled power difficulty squared ((difficulty)^2)
+        - Represents how hard the last channeled power was. Squaring makes harder casts contribute disproportionately more to the chance to gain attunement (i.e., big difficulties matter much more than small ones).
+      - repeated channeling value (u_nether_conduit_repeated_channeling_value)
+        - Captures how much the player has been repeatedly channeling. It increases the chance, but in the "below threshold" branch it is divided by 3 to reduce its impact (so repeated channeling is less potent there).
+      - maintained powers vitamin (u_vitamin('vitamin_maintained_powers')) multiplied by 3
+        - Counts powers the player is keeping active; multiplied to make maintained powers noticeably increase the chance to gain attunement.
+    - Threshold logic (psionic drain vs threshold = 15)
+      - If the player's psionic drain vitamin is below 15, the builder uses the "below" formula: repeated channeling contribution is scaled down (divided by 3). This makes gaining attunement harder when the player has low psionic drain.
+      - If psionic drain is at/above 15, the "above" formula uses the repeated channeling value at full strength (no division), so repeated channeling gives a larger boost.
+    - Net effect in play
+      - Tougher channeled powers and keeping powers active meaningfully increase the chance to raise nether attunement.
+      - Repeated channeling helps too, but its weight depends on the player's psionic drain: reduced impact when drain is low, full impact when drain is high.
+      - The builder sets the latest difficulty first, then runs the scaling check which selects the appropriate attunement-raising EOC (below vs above threshold) so the result is applied as a follow-up event.
+    */
+    const latestSq = mul(latest, latest);
+    const belowExpr = add(
+      latestSq,
+      div(repeated, vars.factors.repeated_channeling_below_threshold_divisor),
+      mul(
+        countMaintainedActivePowers,
+        vars.factors.maintained_powers_multiplier
+      )
+    );
+    const aboveExpr = add(
+      latestSq,
+      repeated,
+      mul(
+        countMaintainedActivePowers,
+        vars.factors.maintained_powers_multiplier
+      )
+    );
 
     const belowCheckerRunEocs = runEocs([
       effectOnCondition({
         id: vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
-        condition: xInYChance(belowExpr, 100),
+        condition: xInYChance(belowExpr, PERCENT_MAX),
         effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD)],
       }),
     ]);
@@ -166,7 +208,7 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
     const aboveCheckerRunEocs = runEocs([
       effectOnCondition({
         id: vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
-        condition: xInYChance(aboveExpr, 100),
+        condition: xInYChance(aboveExpr, PERCENT_MAX),
         effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD)],
       }),
     ]);
@@ -174,7 +216,7 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
     const scalingCheck = effectOnCondition({
       id: vars.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
       condition: mathCondition(
-        `${psionicDrainVitaminCall} < ${vars.thresholds.psionic_drain}`
+        `${currentPsionicDrain} < ${vars.thresholds.psionic_drain}`
       ),
       effect: [belowCheckerRunEocs],
       false_effect: [aboveCheckerRunEocs],

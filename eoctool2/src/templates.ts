@@ -1,4 +1,5 @@
-// Reusable template helpers for EOC builder specs and builders
+// Common constants and reusable template helpers for EOC builder specs and builders
+export const PERCENT_MAX = 100;
 
 export function setField(field: string, expr: string): any {
   return { math: [`${field} = ${expr}`] };
@@ -52,4 +53,19 @@ class CondBuilder {
 }
 function cond(leftSide: string): CondBuilder {
   return new CondBuilder(leftSide);
+}
+
+export function add(...args: (string | number)[]): string {
+  return args.join(" + ");
+}
+
+export function mul(...args: (string | number)[]): string {
+  return `(${args.join(" * ")})`;
+}
+
+export function div(
+  numerator: string | number,
+  denominator: string | number
+): string {
+  return `(${numerator} / ${denominator})`;
 }
