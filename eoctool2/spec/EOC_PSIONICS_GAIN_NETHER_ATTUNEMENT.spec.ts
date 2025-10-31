@@ -17,90 +17,11 @@ import {
 } from "@/templates";
 import { MindOverMatter } from "./MindOverMatter";
 
-describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
+describe(MOM.EOC.EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
   const targetData = testJson;
 
   it("should build an EOC equivalent to the hand-crafted one.", () => {
-    /* Hand-crafted EOC for reference:
-{
-    "type": "effect_on_condition",
-    "id": "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT",
-    "eoc_type": "EVENT",
-    "required_event": "spellcasting_finish",
-    "condition": {
-        "test_eoc": "EOC_CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST"
-    },
-    "effect": [
-        {
-            "math": [
-                "u_latest_channeled_power_difficulty = _difficulty"
-            ]
-        },
-        {
-            "run_eocs": [
-                {
-                    "id": "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK",
-                    "condition": {
-                        "math": [
-                            "u_vitamin('vitamin_psionic_drain') < 15"
-                        ]
-                    },
-                    "effect": [
-                        {
-                            "run_eocs": [
-                                {
-                                    "id": "EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER",
-                                    "condition": {
-                                        "x_in_y_chance": {
-                                            "x": {
-                                                "math": [
-                                                    "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty) + (u_nether_conduit_repeated_channeling_value / 3) + (u_vitamin('vitamin_maintained_powers') * 3)"
-                                                ]
-                                            },
-                                            "y": 100
-                                        }
-                                    },
-                                    "effect": [
-                                        {
-                                            "run_eocs": "EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD"
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ],
-                    "false_effect": [
-                        {
-                            "run_eocs": [
-                                {
-                                    "id": "EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER",
-                                    "condition": {
-                                        "x_in_y_chance": {
-                                            "x": {
-                                                "math": [
-                                                    "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty) + u_nether_conduit_repeated_channeling_value + (u_vitamin('vitamin_maintained_powers') * 3)"
-                                                ]
-                                            },
-                                            "y": 100
-                                        }
-                                    },
-                                    "effect": [
-                                        {
-                                            "run_eocs": "EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD"
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-}
-    */
     // example; act
-
     const thresholds = {
       psionic_drain: 15,
     };
@@ -111,8 +32,8 @@ describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
 
     // build nested pieces with intermediate variables for clarity
     // build math expressions from vars to avoid magic literals
-    const latest = MindOverMatter.u.latest_channeled_power_difficulty;
-    const repeated = MindOverMatter.u.nether_conduit_repeated_channeling_value;
+    const latest = MOM.U.latest_channeled_power_difficulty;
+    const repeated = MOM.U.nether_conduit_repeated_channeling_value;
     const countMaintainedActivePowers =
       MindOverMatter.u.vitamin.maintained_powers;
     const currentPsionicDrain = MindOverMatter.u.vitamin.psionic_drain;
@@ -151,18 +72,18 @@ describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
 
     const belowCheckerRunEocs = runEocs([
       effectOnCondition({
-        id: MindOverMatter.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
+        id: MOM.EOC.EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
         condition: xInYChance(belowExpr, PERCENT_MAX),
-        effect: [runEocs(MindOverMatter.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD)],
+        effect: [runEocs(MOM.EOC.EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD)],
       }),
     ]);
 
     const aboveCheckerRunEocs = runEocs([
       makeEoc((eoc) => {
-        eoc.id = MindOverMatter.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER;
+        eoc.id = MOM.EOC.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER;
         eoc.condition = xInYChance(aboveExpr, PERCENT_MAX);
         eoc.effect = [
-          runEocs(MindOverMatter.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD),
+          runEocs(MOM.EOC.EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD),
         ];
       }),
     ]);

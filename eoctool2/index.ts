@@ -15,7 +15,7 @@ if (argv.length === 0) {
 const cmd = argv[0];
 /*
 Example:
-❯ npx tsx index.ts scan-constants "...\Cataclysm-DDA\data\json" "generated/core.ts"  
+❯ npx tsx index.ts scan-constants "...\Cataclysm-DDA\data\json" "generated/core.ts"
 */
 if (cmd === "scan-constants") {
   const rootDir = argv[1];
