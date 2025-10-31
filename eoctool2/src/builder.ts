@@ -15,12 +15,6 @@ export class EOCBuilder {
     return this;
   }
 
-  with_comment(comment: string): EOCBuilder {
-    if (!this.eoc.comments) this.eoc.comments = [];
-    this.eoc.comments.push(comment);
-    return this;
-  }
-
   with_event(event: string): EOCBuilder {
     this.eoc.required_event = event;
     this.eoc.eoc_type = EOCType.EVENT;

@@ -3,6 +3,15 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { EOCBuilder } from "../src/builder";
 import { describe, expect, it } from "vitest";
+import {
+  setField,
+  test_eoc,
+  runEocs,
+  runEocsSingle,
+  effectOnCondition,
+  mathCondition,
+  xInYChance,
+} from "../src/templates";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -15,8 +24,7 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
   const targetJson = await fs.readFile(pathToJson, "utf-8");
   const targetData = JSON.parse(targetJson);
   it("should build an EOC equivalent to the hand-crafted one.", () => {
-    /*
-    Hand-crafted EOC for reference:
+    /* Hand-crafted EOC for reference:
 {
     "type": "effect_on_condition",
     "id": "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT",
@@ -98,6 +106,16 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
     const vars = {
       eoc: {
         PSIONICS_GAIN_NETHER_ATTUNEMENT: "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT",
+        PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK:
+          "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK",
+        RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER:
+          "EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER",
+        RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER:
+          "EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER",
+        RAISE_ATTUNEMENT_BELOW_THRESHOLD:
+          "EOC_RAISE_ATTUNEMENT_BELOW_THRESHOLD",
+        RAISE_ATTUNEMENT_ABOVE_THRESHOLD:
+          "EOC_RAISE_ATTUNEMENT_ABOVE_THRESHOLD",
         CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST:
           "EOC_CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST",
       },
@@ -111,6 +129,33 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
       },
       placeholder: { difficulty: "_difficulty" },
     };
+
+    // build nested pieces with intermediate variables for clarity
+    const belowThresholdChecker = effectOnCondition({
+      id: vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
+      condition: xInYChance(
+        "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty) + (u_nether_conduit_repeated_channeling_value / 3) + (u_vitamin('vitamin_maintained_powers') * 3)",
+        100
+      ),
+      effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD)],
+    });
+
+    const aboveThresholdChecker = effectOnCondition({
+      id: vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
+      condition: xInYChance(
+        "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty) + u_nether_conduit_repeated_channeling_value + (u_vitamin('vitamin_maintained_powers') * 3)",
+        100
+      ),
+      effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD)],
+    });
+
+    const scalingCheck = effectOnCondition({
+      id: vars.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
+      condition: mathCondition("u_vitamin('vitamin_psionic_drain') < 15"),
+      effect: [runEocs([belowThresholdChecker])],
+      false_effect: [runEocs([aboveThresholdChecker])],
+    });
+
     const builder = new EOCBuilder(vars.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT)
       .with_event(vars.events.SPELLCASTING_FINISH)
       .with_condition(
@@ -121,21 +166,9 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
           vars.u.latest_channeled_power_difficulty,
           vars.placeholder.difficulty
         ),
+        runEocs([scalingCheck]),
       ]);
     // assert
     expect(builder.build()).toEqual(targetData);
   });
 });
-
-// === REUSABLES ===
-
-function setField(field: string, expr: string): any {
-  return {
-    math: [`${field} = ${expr}`],
-  };
-}
-function test_eoc(name: string): any {
-  return {
-    test_eoc: name,
-  };
-}
