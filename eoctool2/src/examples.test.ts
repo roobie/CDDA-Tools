@@ -1,16 +1,16 @@
-import { EOC_ID_ENUM, type EOC_ID } from "../generated/core";
+import { EOC, type EOC_ID } from "../generated/core";
 import { EOCBuilder } from "./builder";
 
 import { describe, expect, it } from "vitest";
 describe("EOCBuilder", () => {
   it("should build an EOC with event type", () => {
     // example; act
-    const mainEoc: EOC_ID = EOC_ID_ENUM.EOC_SMARTPHONE_RECOVERY;
+    const mainEoc: EOC_ID = EOC.EOC_SMARTPHONE_RECOVERY;
     const builder = new EOCBuilder(mainEoc).with_effect([
       {
         run_eoc_selector: [
-          "EOC_SMARTPHONE_RECOVERY_BASIC",
-          "EOC_SMARTPHONE_RECOVERY_ADVANCED",
+          EOC.EOC_SMARTPHONE_RECOVERY_BASIC,
+          EOC.EOC_SMARTPHONE_RECOVERY_ADVANCED,
         ] satisfies EOC_ID[],
         allow_cancel: true,
         hilight_disabled: true,

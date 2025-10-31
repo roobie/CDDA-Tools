@@ -17,6 +17,9 @@ export const MindOverMatter = {
     CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST:
       "EOC_CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST",
   },
+  events: {
+    SPELLCASTING_FINISH: "spellcasting_finish",
+  },
   u: {
     latest_channeled_power_difficulty: "u_latest_channeled_power_difficulty",
     nether_conduit_repeated_channeling_value:

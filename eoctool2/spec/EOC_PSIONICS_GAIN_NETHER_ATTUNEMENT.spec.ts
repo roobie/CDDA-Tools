@@ -1,5 +1,6 @@
 import testJson from "./EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT.json";
 import { EOCBuilder } from "@/builder";
+import * as MOM from "@generated/mom";
 import { describe, expect, it } from "vitest";
 import {
   setField,
@@ -15,7 +16,6 @@ import {
   makeEoc,
 } from "@/templates";
 import { MindOverMatter } from "./MindOverMatter";
-import { CDDA } from "./CDDA";
 
 describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
   const targetData = testJson;
@@ -168,7 +168,7 @@ describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
     ]);
 
     const scalingCheck = effectOnCondition({
-      id: MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
+      id: MOM.EOC.EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
       condition: mathExpr([
         `${currentPsionicDrain} < ${thresholds.psionic_drain}`,
       ]),
@@ -179,11 +179,10 @@ describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
     const builder = new EOCBuilder(
       MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT,
     )
-      .with_event(CDDA.events.SPELLCASTING_FINISH)
+      .with_event(MOM.EVENT.spellcasting_finish)
       .with_condition(
         test_eoc(
-          MindOverMatter.eoc
-            .CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST,
+          MOM.EOC.EOC_CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST,
         ),
       )
       .with_effect([

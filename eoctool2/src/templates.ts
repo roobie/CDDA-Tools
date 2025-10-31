@@ -141,3 +141,49 @@ export function makeEoc(
   mutator(result);
   return result;
 }
+
+// Additional small helpers used by specs
+export function expectsVars(...vars: string[]): any {
+  return { expects_vars: vars };
+}
+
+export function oneInChance(contextVal: string): any {
+  return { one_in_chance: { context_val: contextVal } };
+}
+
+export function uNearOmLocation(contextVal: string, range?: number): any {
+  const out: any = { u_near_om_location: { context_val: contextVal } };
+  if (range !== undefined) out.range = range;
+  return out;
+}
+
+export function getCondition(name: string): any {
+  return { get_condition: name };
+}
+
+export function uLocationVariable(
+  globalVal: string,
+  omTerrainContextVal?: string,
+): any {
+  const out: any = { u_location_variable: { global_val: globalVal } };
+  if (omTerrainContextVal)
+    out.target_params = { om_terrain: { context_val: omTerrainContextVal } };
+  return out;
+}
+
+export function copyVar(contextVal: string, targetGlobalVal: string): any {
+  return {
+    copy_var: { context_val: contextVal },
+    target_var: { global_val: targetGlobalVal },
+  };
+}
+
+export function mapgenUpdate(
+  mapUpdateContextVal: string,
+  omTerrainContextVal: string,
+): any {
+  return {
+    mapgen_update: [{ context_val: mapUpdateContextVal }],
+    om_terrain: { context_val: omTerrainContextVal },
+  };
+}

@@ -6,7 +6,8 @@ export default {
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src')
+      '@': path.resolve(__dirname, './src'),
+      '@generated': path.resolve(__dirname, './generated')
     },
   },
 }
