@@ -103,7 +103,12 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
 }
     */
     // example; act
+    const vitamins = {
+      psionic_drain: "vitamin_psionic_drain",
+      maintained_powers: "vitamin_maintained_powers",
+    };
     const vars = {
+      vitamins,
       eoc: {
         PSIONICS_GAIN_NETHER_ATTUNEMENT: "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT",
         PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK:
@@ -128,14 +133,12 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
           "u_latest_channeled_power_difficulty",
         nether_conduit_repeated_channeling_value:
           "u_nether_conduit_repeated_channeling_value",
-        // helper function name prefix for vitamin access; used as string to build calls
-        vitamin: "u_vitamin",
+        vitamin: {
+          psionic_drain: `u_vitamin('${vitamins.psionic_drain}')`,
+          maintained_powers: `u_vitamin('${vitamins.maintained_powers}')`,
+        },
       },
       placeholder: { difficulty: "_difficulty" },
-      vitamins: {
-        psionic_drain: "vitamin_psionic_drain",
-        maintained_powers: "vitamin_maintained_powers",
-      },
       thresholds: {
         psionic_drain: 15,
       },
@@ -145,11 +148,12 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
     // build math expressions from vars to avoid magic literals
     const latest = vars.u.latest_channeled_power_difficulty;
     const repeated = vars.u.nether_conduit_repeated_channeling_value;
-    const maintainedVitaminCall = `${vars.u.vitamin}('${vars.vitamins.maintained_powers}')`;
-    const psionicDrainVitaminCall = `${vars.u.vitamin}('${vars.vitamins.psionic_drain}')`;
+    const maintainedVitaminCall = vars.u.vitamin.maintained_powers;
+    const psionicDrainVitaminCall = vars.u.vitamin.psionic_drain;
 
-    const belowExpr = `(${latest} * ${latest}) + (${repeated} / 3) + (${maintainedVitaminCall} * 3)`;
-    const aboveExpr = `(${latest} * ${latest}) + ${repeated} + (${maintainedVitaminCall} * 3)`;
+    const latestSq = `(${latest} * ${latest})`;
+    const belowExpr = `${latestSq} + (${repeated} / 3) + (${maintainedVitaminCall} * 3)`;
+    const aboveExpr = `${latestSq} + ${repeated} + (${maintainedVitaminCall} * 3)`;
 
     const belowCheckerRunEocs = runEocs([
       effectOnCondition({
