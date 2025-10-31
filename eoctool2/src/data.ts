@@ -30,6 +30,13 @@ export const EffectOnConditionSchema = Type.Object({
 });
 
 export type EffectOnCondition = Static<typeof EffectOnConditionSchema>;
+export type EffectOnConditionValue =
+  | string
+  | string[]
+  | EffectOnCondition
+  | EffectOnCondition[];
+
+export type Expr = string | number | boolean | { [key: string]: Expr } | Expr[];
 
 export function createDefaultEoc(id: string): EffectOnCondition {
   return {

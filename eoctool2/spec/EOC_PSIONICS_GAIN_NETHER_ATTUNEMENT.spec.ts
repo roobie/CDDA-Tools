@@ -169,9 +169,9 @@ describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
 
     const scalingCheck = effectOnCondition({
       id: MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
-      condition: mathExpr(
+      condition: mathExpr([
         `${currentPsionicDrain} < ${thresholds.psionic_drain}`,
-      ),
+      ]),
       effect: [belowCheckerRunEocs],
       false_effect: [aboveCheckerRunEocs],
     });
