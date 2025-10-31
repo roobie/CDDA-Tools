@@ -17,7 +17,7 @@ export const EffectOnConditionSchema = Type.Object({
   id: Type.Optional(Type.String()),
   type: Type.Optional(Type.String()),
   eoc_type: Type.Optional(
-    Type.Union(Object.values(EOCType).map((v) => Type.Literal(v)) as any)
+    Type.Union(Object.values(EOCType).map((v) => Type.Literal(v)) as any),
   ),
   recurrence: Type.Optional(RecurrenceSchema),
   required_event: Type.Optional(Type.String()),

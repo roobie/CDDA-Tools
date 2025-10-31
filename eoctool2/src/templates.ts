@@ -1,5 +1,11 @@
+import { EffectOnCondition } from "./data";
+
 // Common constants and reusable template helpers for EOC builder specs and builders
 export const PERCENT_MAX = 100;
+
+export const MESSAGE_TYPE = {
+  bad: "bad",
+} as const;
 
 export function setField(field: string, expr: string): any {
   return { math: [`${field} = ${expr}`] };
@@ -24,7 +30,7 @@ export function effectOnCondition(opts: {
   effect?: any[];
   false_effect?: any[];
 }): any {
-  const out: any = {};
+  const out: EffectOnCondition = {};
   if (opts.id) out.id = opts.id;
   if (opts.condition) out.condition = opts.condition;
   if (opts.effect) out.effect = opts.effect;
@@ -32,7 +38,7 @@ export function effectOnCondition(opts: {
   return out;
 }
 
-export function mathCondition(expr: string): any {
+export function mathExpr(expr: string): any {
   return { math: [expr] };
 }
 
@@ -95,4 +101,16 @@ export function uCastSpell(
 ): any {
   if (typeof opts === "string") return { u_cast_spell: { id: opts } };
   return { u_cast_spell: opts };
+}
+
+export function hours(numHours: number): string {
+  return `${numHours} hours`;
+}
+
+export function makeEoc(
+  mutator: (eoc: EffectOnCondition) => void,
+): EffectOnCondition {
+  const result: EffectOnCondition = {};
+  mutator(result);
+  return result;
 }

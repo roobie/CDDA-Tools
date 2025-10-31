@@ -1,6 +1,4 @@
-import fs from "fs/promises";
-import path from "path";
-import { fileURLToPath } from "url";
+import testJson from "./EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT.json";
 import { EOCBuilder } from "@/builder";
 import { describe, expect, it } from "vitest";
 import {
@@ -10,25 +8,18 @@ import {
   add,
   mul,
   div,
-  runEocsSingle,
   effectOnCondition,
-  mathCondition,
+  mathExpr,
   xInYChance,
   PERCENT_MAX,
+  makeEoc,
 } from "@/templates";
 import { MindOverMatter } from "./MindOverMatter";
 import { CDDA } from "./CDDA";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
+  const targetData = testJson;
 
-describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
-  const pathToJson = path.join(
-    __dirname,
-    "EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT.json",
-  );
-  const targetJson = await fs.readFile(pathToJson, "utf-8");
-  const targetData = JSON.parse(targetJson);
   it("should build an EOC equivalent to the hand-crafted one.", () => {
     /* Hand-crafted EOC for reference:
 {
@@ -167,16 +158,18 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
     ]);
 
     const aboveCheckerRunEocs = runEocs([
-      effectOnCondition({
-        id: MindOverMatter.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
-        condition: xInYChance(aboveExpr, PERCENT_MAX),
-        effect: [runEocs(MindOverMatter.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD)],
+      makeEoc((eoc) => {
+        eoc.id = MindOverMatter.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER;
+        eoc.condition = xInYChance(aboveExpr, PERCENT_MAX);
+        eoc.effect = [
+          runEocs(MindOverMatter.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD),
+        ];
       }),
     ]);
 
     const scalingCheck = effectOnCondition({
       id: MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
-      condition: mathCondition(
+      condition: mathExpr(
         `${currentPsionicDrain} < ${thresholds.psionic_drain}`,
       ),
       effect: [belowCheckerRunEocs],
