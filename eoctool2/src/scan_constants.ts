@@ -15,7 +15,7 @@ type Collector = {
   missions: Set<string>;
   run_eocs: Set<string>;
   u_fields: Set<string>;
-  u_functions: Set<string>;
+  u_functions: Map<string, Set<number>>;
 };
 
 function makeCollector(): Collector {
@@ -32,7 +32,7 @@ function makeCollector(): Collector {
     missions: new Set(),
     run_eocs: new Set(),
     u_fields: new Set(),
-    u_functions: new Set(),
+    u_functions: new Map(),
   };
 }
 
@@ -119,16 +119,47 @@ function processEoc(eoc: any, collector: Collector) {
 function scanStringForUSymbols(value: any, collector: Collector) {
   if (typeof value !== "string") return;
   // find tokens that start with 'u_' optionally followed by letters, numbers, dots or underscores
-  // also capture following char to determine if it's a function (immediately followed by '(' )
-  // we'll use a global regex to find occurrences
-  const re = /\b(u_[A-Za-z0-9_.-]*)(\s*\()?/g;
+  // capture an optional parenthesis block to determine if it's a function and count args
+  // regex explanation:
+  // 1: (u_...) the symbol
+  // 2: \s*\(([^)]*)\)? optional parenthesis with captured inner contents (args)
+  const re = /\b(u_[A-Za-z0-9_.-]*)(?:\s*\(([^)]*)\))?/g;
   let m: RegExpExecArray | null;
   while ((m = re.exec(value)) !== null) {
     const sym = m[1];
-    const nextParen = typeof m[2] === "string" && m[2].includes("(");
-    if (nextParen) collector.u_functions.add(sym);
-    else collector.u_fields.add(sym);
+    const argsText = m[2];
+    if (typeof argsText === "string") {
+      // count arguments (comma-separated) but handle empty string
+      const args =
+        argsText.trim().length === 0 ? 0 : argsText.split(",").length;
+      let set = collector.u_functions.get(sym);
+      if (!set) {
+        set = new Set<number>();
+        collector.u_functions.set(sym, set);
+      }
+      set.add(args);
+    } else {
+      collector.u_fields.add(sym);
+    }
   }
+}
+
+function emitFunctionGroup(
+  set: Map<string, Set<number>>,
+  asConstName: string,
+  enumName: string,
+): string {
+  // produce a block of doc comments for functions and an identity enum object
+  const entries = Array.from(set.keys()).sort();
+  const enumObj: Record<string, string> = {};
+  let docs = "";
+  for (const k of entries) {
+    enumObj[k] = k;
+    const counts = Array.from(set.get(k) || []).sort((a, b) => a - b);
+    docs += `// ${k} - observed arg counts: ${counts.join(", ") || "0"}\n`;
+  }
+  const enumJson = JSON.stringify(enumObj, null, 2);
+  return `${docs}export const ${enumName} = ${enumJson} as const;\nexport type STRING = keyof typeof ${enumName};\n`;
 }
 
 function readJsonFileSync(filePath: string): any | null {
@@ -347,8 +378,7 @@ export async function generateDts(
     );
 
   if (include.u_functions)
-    content += emitGroup(
-      "U_FUNCTION",
+    content += emitFunctionGroup(
       collector.u_functions,
       "U_FUNCTIONS",
       "U_FUNCTION_ENUM",

@@ -5022,8 +5022,6 @@ export const U_FIELD_ENUM = {
   "u_is_outside": "u_is_outside",
   "u_latest_channeled_power_difficulty": "u_latest_channeled_power_difficulty",
   "u_latest_studied_power_difficulty": "u_latest_studied_power_difficulty",
-  "u_latest_studied_power_name": "u_latest_studied_power_name",
-  "u_latest_studied_power_proficiency": "u_latest_studied_power_proficiency",
   "u_mentality_picked": "u_mentality_picked",
   "u_mood_stabilized_power_level": "u_mood_stabilized_power_level",
   "u_name": "u_name",
@@ -5083,7 +5081,33 @@ export const U_FIELD_ENUM = {
   "u_weight_ratio": "u_weight_ratio"
 } as const;
 export type U_FIELD = keyof typeof U_FIELD_ENUM;
-
+// u_calories - observed arg counts: 0, 1
+// u_effect_intensity - observed arg counts: 1, 2
+// u_has_proficiency - observed arg counts: 1
+// u_has_trait - observed arg counts: 1
+// u_health - observed arg counts: 0
+// u_hp - observed arg counts: 1
+// u_hp_max - observed arg counts: 1
+// u_mon_species_nearby - observed arg counts: 4
+// u_monsters_nearby - observed arg counts: 1, 2
+// u_npc_anger - observed arg counts: 0
+// u_npc_fear - observed arg counts: 0
+// u_npc_trust - observed arg counts: 0
+// u_pain - observed arg counts: 0, 1
+// u_proficiency - observed arg counts: 2, 3
+// u_school_level - observed arg counts: 1
+// u_skill - observed arg counts: 1
+// u_skill_exp - observed arg counts: 2
+// u_spell_count - observed arg counts: 1
+// u_spell_difficulty - observed arg counts: 1
+// u_spell_exp - observed arg counts: 1
+// u_spell_level - observed arg counts: 1
+// u_spell_level_sum - observed arg counts: 1
+// u_spellcasting_adjustment - observed arg counts: 2
+// u_val - observed arg counts: 1
+// u_vitamin - observed arg counts: 1
+// u_volume - observed arg counts: 0
+// u_weight - observed arg counts: 0
 export const U_FUNCTION_ENUM = {
   "u_calories": "u_calories",
   "u_effect_intensity": "u_effect_intensity",
@@ -5113,4 +5137,4 @@ export const U_FUNCTION_ENUM = {
   "u_volume": "u_volume",
   "u_weight": "u_weight"
 } as const;
-export type U_FUNCTION = keyof typeof U_FUNCTION_ENUM;
+export type STRING = keyof typeof U_FUNCTION_ENUM;
