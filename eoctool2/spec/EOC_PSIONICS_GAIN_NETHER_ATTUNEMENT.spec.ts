@@ -126,34 +126,54 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
       u: {
         latest_channeled_power_difficulty:
           "u_latest_channeled_power_difficulty",
+        nether_conduit_repeated_channeling_value:
+          "u_nether_conduit_repeated_channeling_value",
+        // helper function name prefix for vitamin access; used as string to build calls
+        vitamin: "u_vitamin",
       },
       placeholder: { difficulty: "_difficulty" },
+      vitamins: {
+        psionic_drain: "vitamin_psionic_drain",
+        maintained_powers: "vitamin_maintained_powers",
+      },
+      thresholds: {
+        psionic_drain: 15,
+      },
     };
 
     // build nested pieces with intermediate variables for clarity
-    const belowThresholdChecker = effectOnCondition({
-      id: vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
-      condition: xInYChance(
-        "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty) + (u_nether_conduit_repeated_channeling_value / 3) + (u_vitamin('vitamin_maintained_powers') * 3)",
-        100
-      ),
-      effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD)],
-    });
+    // build math expressions from vars to avoid magic literals
+    const latest = vars.u.latest_channeled_power_difficulty;
+    const repeated = vars.u.nether_conduit_repeated_channeling_value;
+    const maintainedVitaminCall = `${vars.u.vitamin}('${vars.vitamins.maintained_powers}')`;
+    const psionicDrainVitaminCall = `${vars.u.vitamin}('${vars.vitamins.psionic_drain}')`;
 
-    const aboveThresholdChecker = effectOnCondition({
-      id: vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
-      condition: xInYChance(
-        "(u_latest_channeled_power_difficulty * u_latest_channeled_power_difficulty) + u_nether_conduit_repeated_channeling_value + (u_vitamin('vitamin_maintained_powers') * 3)",
-        100
-      ),
-      effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD)],
-    });
+    const belowExpr = `(${latest} * ${latest}) + (${repeated} / 3) + (${maintainedVitaminCall} * 3)`;
+    const aboveExpr = `(${latest} * ${latest}) + ${repeated} + (${maintainedVitaminCall} * 3)`;
+
+    const belowCheckerRunEocs = runEocs([
+      effectOnCondition({
+        id: vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD_CHECKER,
+        condition: xInYChance(belowExpr, 100),
+        effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_BELOW_THRESHOLD)],
+      }),
+    ]);
+
+    const aboveCheckerRunEocs = runEocs([
+      effectOnCondition({
+        id: vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD_CHECKER,
+        condition: xInYChance(aboveExpr, 100),
+        effect: [runEocs(vars.eoc.RAISE_ATTUNEMENT_ABOVE_THRESHOLD)],
+      }),
+    ]);
 
     const scalingCheck = effectOnCondition({
       id: vars.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT_SCALING_CHECK,
-      condition: mathCondition("u_vitamin('vitamin_psionic_drain') < 15"),
-      effect: [runEocs([belowThresholdChecker])],
-      false_effect: [runEocs([aboveThresholdChecker])],
+      condition: mathCondition(
+        `${psionicDrainVitaminCall} < ${vars.thresholds.psionic_drain}`
+      ),
+      effect: [belowCheckerRunEocs],
+      false_effect: [aboveCheckerRunEocs],
     });
 
     const builder = new EOCBuilder(vars.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT)
@@ -168,6 +188,7 @@ describe("EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT", async () => {
         ),
         runEocs([scalingCheck]),
       ]);
+
     // assert
     expect(builder.build()).toEqual(targetData);
   });
