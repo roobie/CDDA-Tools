@@ -230,11 +230,18 @@ function scanParsed(parsed: any, collector: Collector) {
 function toArrayLiteral(set: Set<string>): string {
   return JSON.stringify(Array.from(set).sort(), null, 2);
 }
-function toIdentityEnumObject(set: Set<string>): string {
+function toIdentityEnumObject(
+  set: Set<string>,
+  prefixToRemove?: string | undefined,
+): string {
   const entries = Array.from(set).sort();
   const result: Record<string, string> = {};
   for (const v of entries) {
-    result[v] = v;
+    if (prefixToRemove && v.startsWith(prefixToRemove)) {
+      result[v.substring(prefixToRemove.length)] = v;
+    } else {
+      result[v] = v;
+    }
   }
   return JSON.stringify(result, null, 2);
 }
@@ -259,10 +266,11 @@ function emitGroup(
   set: Set<string>,
   asConstName: string,
   enumName: string,
+  prefixToRemove?: string | undefined,
 ): string {
   // keyBase is used for comments and naming; asConstName is the exported const
   const arrLit = toArrayLiteral(set);
-  const enumObj = toIdentityEnumObject(set);
+  const enumObj = toIdentityEnumObject(set, prefixToRemove);
   // omit
   // export const ${asConstName} = ${arrLit} as const;
   return `
@@ -372,16 +380,10 @@ export async function generateDts(
   if (include.u_fields)
     content += emitGroup(
       "U_FIELD",
-      collector.u_fields,
+      new Set([...collector.u_fields, ...collector.u_functions.keys()]),
       "U_FIELDS",
-      "U_FIELD_ENUM",
-    );
-
-  if (include.u_functions)
-    content += emitFunctionGroup(
-      collector.u_functions,
-      "U_FUNCTIONS",
-      "U_FUNCTION_ENUM",
+      "U",
+      "u_",
     );
 
   await new Promise((resolve, reject) => {

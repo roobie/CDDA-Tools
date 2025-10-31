@@ -176,9 +176,7 @@ describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
       false_effect: [aboveCheckerRunEocs],
     });
 
-    const builder = new EOCBuilder(
-      MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT,
-    )
+    const builder = new EOCBuilder(MOM.EOC.EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT)
       .with_event(MOM.EVENT.spellcasting_finish)
       .with_condition(
         test_eoc(
@@ -187,7 +185,7 @@ describe(MindOverMatter.eoc.PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
       )
       .with_effect([
         setField(
-          MindOverMatter.u.latest_channeled_power_difficulty,
+          MOM.U.latest_channeled_power_difficulty,
           MindOverMatter.placeholder.difficulty,
         ),
         runEocs([scalingCheck]),
