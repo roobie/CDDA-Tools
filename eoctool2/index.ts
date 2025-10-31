@@ -13,6 +13,10 @@ if (argv.length === 0) {
 }
 
 const cmd = argv[0];
+/*
+Example:
+❯ npx tsx index.ts scan-constants "...\Cataclysm-DDA\data\json" "generated/core.ts"  
+*/
 if (cmd === "scan-constants") {
   const rootDir = argv[1];
   const outFile = argv[2];
@@ -20,15 +24,26 @@ if (cmd === "scan-constants") {
   if (outFile != null && outFile.length > 0) {
     fs.mkdirSync(path.dirname(outFile), { recursive: true });
     outstream = fs.createWriteStream(outFile, { encoding: "utf-8" });
+    outstream.on("error", (err) => {
+      console.error(`Error writing to file ${outFile}: ${err.message}`);
+      process.exit(3);
+    });
   }
   if (!rootDir) {
     console.error("scan-constants requires a root directory path");
     process.exit(2);
   }
-  scanConstants(rootDir, outstream);
-  console.log(`Wrote constants to ${outFile}`);
-  process.exit(0);
+  scanConstants(rootDir, outstream).then(
+    () => {
+      console.log(`Wrote constants to ${outFile}`);
+      process.exit(0);
+    },
+    (err) => {
+      console.error(`Error during scan-constants: ${err.message}`);
+      process.exit(4);
+    },
+  );
+} else {
+  console.error(`Unknown command: ${cmd}`);
+  process.exit(1);
 }
-
-// default: if single arg given, treat it as directoryRoot for backward compat
-const directoryRoot = argv[0];
