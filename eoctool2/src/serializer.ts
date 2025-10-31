@@ -12,7 +12,7 @@ export class EOCSerializer {
 
     if (eoc.id !== undefined) out.id = eoc.id;
     if (eoc.type !== undefined) out.type = eoc.type;
-    if (eoc.EOC_TYPE !== undefined) out.EOC_TYPE = eoc.EOC_TYPE;
+    if (eoc.eoc_type !== undefined) out.eoc_type = eoc.eoc_type;
     if (eoc.recurrence !== undefined) out.recurrence = eoc.recurrence;
     if (eoc.required_event !== undefined)
       out.required_event = eoc.required_event;
@@ -23,7 +23,6 @@ export class EOCSerializer {
     if (eoc.false_effect !== undefined) out.false_effect = eoc.false_effect;
     if (eoc.global !== undefined) out.global = eoc.global;
     if (eoc.run_for_npcs !== undefined) out.run_for_npcs = eoc.run_for_npcs;
-    if (eoc.comments !== undefined) out.comments = eoc.comments;
 
     return out;
   }

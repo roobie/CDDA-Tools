@@ -1,9 +1,10 @@
 {
   "folders": [
+    { "path": "../Cataclysm-DDA/doc" },
+    { "path": "../Cataclysm-DDA/data" },
     {
       "path": "."
-    },
-    { "path": "../Cataclysm-DDA" }
+    }
   ],
   "settings": {
     "[json]": {

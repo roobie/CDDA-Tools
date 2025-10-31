@@ -16,7 +16,7 @@ export const RecurrenceSchema = Type.Union([
 export const EffectOnConditionSchema = Type.Object({
   id: Type.Optional(Type.String()),
   type: Type.Optional(Type.String()),
-  EOC_TYPE: Type.Optional(
+  eoc_type: Type.Optional(
     Type.Union(Object.values(EOCType).map((v) => Type.Literal(v)) as any)
   ),
   recurrence: Type.Optional(RecurrenceSchema),
@@ -27,7 +27,6 @@ export const EffectOnConditionSchema = Type.Object({
   false_effect: Type.Optional(Type.Any()),
   global: Type.Optional(Type.Boolean()),
   run_for_npcs: Type.Optional(Type.Boolean()),
-  comments: Type.Optional(Type.Array(Type.String())),
 });
 
 export type EffectOnCondition = Static<typeof EffectOnConditionSchema>;
@@ -36,6 +35,5 @@ export function createDefaultEoc(id: string): EffectOnCondition {
   return {
     id,
     type: "effect_on_condition",
-    comments: [],
   };
 }

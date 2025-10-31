@@ -11,7 +11,7 @@ export class EOCBuilder {
   }
 
   with_type(eocType: EOCType): EOCBuilder {
-    this.eoc.EOC_TYPE = eocType;
+    this.eoc.eoc_type = eocType;
     return this;
   }
 
@@ -23,13 +23,13 @@ export class EOCBuilder {
 
   with_event(event: string): EOCBuilder {
     this.eoc.required_event = event;
-    this.eoc.EOC_TYPE = EOCType.EVENT;
+    this.eoc.eoc_type = EOCType.EVENT;
     return this;
   }
 
   with_recurrence(recurrence: number | string | any[]): EOCBuilder {
     this.eoc.recurrence = recurrence as any;
-    if (!this.eoc.EOC_TYPE) this.eoc.EOC_TYPE = EOCType.RECURRING;
+    if (!this.eoc.eoc_type) this.eoc.eoc_type = EOCType.RECURRING;
     return this;
   }
 
