@@ -6,7 +6,7 @@ describe("EOCBuilder", () => {
   it("should build an EOC with event type", () => {
     // example; act
     const mainEoc: EOC_ID = EOC.EOC_SMARTPHONE_RECOVERY;
-    const builder = new EOCBuilder(mainEoc).with_effect([
+    const builder = new EOCBuilder(mainEoc).effect([
       {
         run_eoc_selector: [
           EOC.EOC_SMARTPHONE_RECOVERY_BASIC,

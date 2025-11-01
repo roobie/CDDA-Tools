@@ -16,11 +16,11 @@ describe(XedraEvolved.eoc.CALL_DAFFODIL, async () => {
 
   it("should build an EOC equivalent to the hand-crafted one.", () => {
     const builder = new EOCBuilder(XedraEvolved.eoc.CALL_DAFFODIL)
-      .with_condition(uHasEffect("called_daffodil"))
-      .with_effect([
+      .condition(uHasEffect("called_daffodil"))
+      .effect([
         uMessage("You can't call more daffodil yet.", MESSAGE_TYPE.bad),
       ])
-      .with_false_effect([
+      .false_effect([
         uAddEffect("called_daffodil", hours(24)),
         uCastSpell({ id: "call_daffodil_real" }),
       ]);

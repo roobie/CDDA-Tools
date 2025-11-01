@@ -8,7 +8,7 @@ describe(XedraEvolved.eoc.SHADOW_LOOT, async () => {
   const targetData = testJson;
 
   it("should build an EOC equivalent to the hand-crafted one.", () => {
-    const builder = new EOCBuilder(XedraEvolved.eoc.SHADOW_LOOT).with_effect([
+    const builder = new EOCBuilder(XedraEvolved.eoc.SHADOW_LOOT).effect([
       uMessage(
         "As the shadow dissipates, it leaves something behind.",
         MESSAGE_TYPE.good,

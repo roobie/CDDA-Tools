@@ -98,13 +98,13 @@ describe(MOM.EOC.EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT, async () => {
     });
 
     const builder = new EOCBuilder(MOM.EOC.EOC_PSIONICS_GAIN_NETHER_ATTUNEMENT)
-      .with_event(MOM.EVENT.spellcasting_finish)
-      .with_condition(
+      .event(MOM.EVENT.spellcasting_finish)
+      .condition(
         test_eoc(
           MOM.EOC.EOC_CONDITION_SPELLCASTING_FINISH_TRAIT_AND_SCHOOL_LIST,
         ),
       )
-      .with_effect([
+      .effect([
         setField(
           MOM.U.latest_channeled_power_difficulty,
           MindOverMatter.placeholder.difficulty,

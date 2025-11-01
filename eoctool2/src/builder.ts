@@ -10,34 +10,34 @@ export class EOCBuilder {
     this.eoc = createDefaultEoc(id);
   }
 
-  with_type(eocType: EOCType): EOCBuilder {
+  type(eocType: EOCType): EOCBuilder {
     this.eoc.eoc_type = eocType;
     return this;
   }
 
-  with_event(event: string): EOCBuilder {
+  event(event: string): EOCBuilder {
     this.eoc.required_event = event;
     this.eoc.eoc_type = EOCType.EVENT;
     return this;
   }
 
-  with_recurrence(recurrence: number | string | any[]): EOCBuilder {
+  recurrence(recurrence: number | string | any[]): EOCBuilder {
     this.eoc.recurrence = recurrence as any;
     if (!this.eoc.eoc_type) this.eoc.eoc_type = EOCType.RECURRING;
     return this;
   }
 
-  with_condition(condition: any): EOCBuilder {
+  condition(condition: any): EOCBuilder {
     this.eoc.condition = condition;
     return this;
   }
 
-  with_effect(effect: any): EOCBuilder {
+  effect(effect: any): EOCBuilder {
     this.eoc.effect = effect;
     return this;
   }
 
-  with_false_effect(effect: any): EOCBuilder {
+  false_effect(effect: any): EOCBuilder {
     this.eoc.false_effect = effect;
     return this;
   }

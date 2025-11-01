@@ -187,3 +187,37 @@ export function mapgenUpdate(
     om_terrain: { context_val: omTerrainContextVal },
   };
 }
+
+export function not(condition: any) {
+  return { not: condition };
+}
+export function hasFlag(flag: string) {
+  return { u_has_flag: flag };
+}
+export function and(conditions: any[]) {
+  return { and: conditions };
+}
+export function case_(cas: string | number, effect: any) {
+  return {
+    case: cas,
+    effect
+  };
+}
+export function runEocsWithDelay(eocId: string, delay: number | string) {
+  return { run_eocs: eocId, time_in_future: delay };
+}
+export function addMorale(moraleType: string, bonus: number, duration: string) {
+  return {
+    u_add_morale: moraleType,
+    bonus,
+    max_bonus: bonus,
+    duration,
+    decay_start: duration
+  };
+}
+export function switchCases(expr: string, cases: any[]) {
+  return {
+    switch: { math: [expr] },
+    cases
+  };
+}

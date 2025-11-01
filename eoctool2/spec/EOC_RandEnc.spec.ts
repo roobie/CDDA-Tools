@@ -18,7 +18,7 @@ describe("EOC_RandEnc", () => {
 
   it("should build an EOC equivalent to the hand-crafted one.", () => {
     const builder = new EOCBuilder("EOC_RandEnc")
-      .with_condition({
+      .condition({
         and: [
           expectsVars(
             "map_update",
@@ -37,7 +37,7 @@ describe("EOC_RandEnc", () => {
           getCondition("random_enc_condition"),
         ],
       })
-      .with_effect([
+      .effect([
         mapgenUpdate("map_update", "omt"),
         setField("u_timer_caravan_RandEnc", "time('now')"),
         // u_location_variable with target_params

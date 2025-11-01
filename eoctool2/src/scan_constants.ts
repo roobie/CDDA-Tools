@@ -273,6 +273,8 @@ function emitGroup(
   const enumObj = toIdentityEnumObject(set, prefixToRemove);
   // omit
   // export const ${asConstName} = ${arrLit} as const;
+  /*
+  */
   return `
 export const ${enumName} = ${enumObj} as const;
 export type ${keyBase.toUpperCase()} = keyof typeof ${enumName};
