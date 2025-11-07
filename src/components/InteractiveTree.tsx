@@ -49,6 +49,6 @@ export function InteractiveTreeNode({ nodeData, onNodeSelect }: { nodeData: UiTr
 function getClassNamesForNode(node: UiTreeNode) {
   return clsx(
     node.isHighlighted ? "bg-yellow-200" : "",
-    node.isDisabled ? "opacity-50 pointer-events-none" : "cursor-pointer"
+    node.isDisabled ? "opacity-50 pointer-events-none" : "cursor-pointer",
   );
 }

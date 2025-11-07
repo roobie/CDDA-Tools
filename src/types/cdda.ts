@@ -147,8 +147,8 @@ export const EocItemSchema = T.Object({
   id: T.String(),
   type: T.Optional(T.Literal("effect_on_condition")),
   condition: T.Optional(EocConditionSchema),
-  effect: T.Optional(T.Array(EocEffectSchema)),
-  false_effect: T.Optional(T.Array(EocEffectSchema)),
+  effect: T.Optional(T.Union([EocEffectSchema, T.Array(EocEffectSchema)])),
+  false_effect: T.Optional(T.Union([EocEffectSchema, T.Array(EocEffectSchema)])),
 });
 
 export type EocItem = Static<typeof EocItemSchema>;

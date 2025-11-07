@@ -7,7 +7,6 @@ export const prerender = false;
 // loads a file from the data directory
 export const GET: APIRoute = async ({ params, request }) => {
   const name = resolveDataPath(params.name ?? "");
-  // console.log(params, request, name);
 
   if (!(await fs.stat(name).catch(() => false))) {
     // if does not exist, return 404

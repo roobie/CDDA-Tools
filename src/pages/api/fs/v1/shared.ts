@@ -18,7 +18,8 @@ export const info = {
 };
 
 export function resolveDataPath(...segments: string[]) {
-  const combined = path.join(dataDir, ...segments);
+  const toJoin = path.normalize(segments.map((x) => decodeURIComponent(x)).join("/"));
+  const combined = path.join(dataDir, toJoin);
   return path.resolve(combined);
 }
 
