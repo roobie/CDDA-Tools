@@ -1,4 +1,10 @@
 {
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[html]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
     "prettier.bracketSameLine": true,
     "prettier.htmlWhitespaceSensitivity": "css",
     "editor.formatOnSave": true
