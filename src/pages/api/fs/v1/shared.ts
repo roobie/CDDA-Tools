@@ -8,7 +8,9 @@ const __dirname = path.dirname(__filename);
 
 const env = import.meta.env;
 
-export const dataDir = path.join(env.PNPM_SCRIPT_SRC_DIR, env.DATA_DIRECTORY);
+export const dataDir = path.isAbsolute(env.DATA_DIRECTORY)
+  ? env.DATA_DIRECTORY
+  : path.join(env.PNPM_SCRIPT_SRC_DIR, env.DATA_DIRECTORY);
 
 export const info = {
   directory: __dirname,
@@ -16,7 +18,8 @@ export const info = {
 };
 
 export function resolveDataPath(...segments: string[]) {
-  return path.resolve(dataDir, ...segments);
+  const combined = path.join(dataDir, ...segments);
+  return path.resolve(combined);
 }
 
 export function json(data: any, responseInit?: ResponseInit | undefined) {

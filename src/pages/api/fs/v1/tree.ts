@@ -33,8 +33,5 @@ export const GET: APIRoute = async ({ params, request }) => {
   }
 
   const tree = await listDir(name);
-  // return json({
-  //   root: name,
-  // });
   return json(tree);
 };

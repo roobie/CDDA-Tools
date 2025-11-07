@@ -13,6 +13,9 @@ export const LeafEocConditionSchema = T.Union([
   MathSchema,
   OneInChanceSchema,
   T.Object({
+    npc_has_species: T.String(),
+  }),
+  T.Object({
     u_has_trait: T.String(),
   }),
   T.Object({

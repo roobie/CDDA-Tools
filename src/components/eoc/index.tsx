@@ -12,6 +12,7 @@ import {
   isLeafEocCondition,
   LeafEocConditionValidator,
   type EocItem,
+  type LeafEocCondition,
 } from "@/types/cdda";
 import { InteractiveTree, type UiTreeNode } from "@/components/InteractiveTree";
 
@@ -20,14 +21,18 @@ export const prerender = false;
 const uiState = {
   expandedNodes: new Set<string>(),
 
-  loadedNode: "json\\addictions_eocs.json",
+  // loadedNode: "effects_on_condition\\addictions_eocs.json",
   // initialIndex: 2,
-  initialIndex: 6,
+  // initialIndex: 6,
 
   // loadedNode: "item_eocs.json",
   // initialIndex: 11,
+
+  loadedNode: "effects_on_condition\\general_conditions.json",
+  initialIndex: 0,
 };
 uiState.expandedNodes.add("json");
+uiState.expandedNodes.add("effects_on_condition");
 
 // this is a solidjs component
 export function EocView() {
@@ -267,13 +272,6 @@ function renderCondition(condition: unknown) {
   const validationErrors = EocConditionValidator.Errors(condition);
   if ([...validationErrors].length > 0) {
     console.log("Condition validation errors:", condition, [...validationErrors]);
-  } else {
-    //   console.log(
-    //     "Condition is valid:",
-    //     condition,
-    //     [...LeafEocConditionValidator.Errors(condition)],
-    //     isLeafEocCondition(condition)
-    //   );
   }
 
   if (!condition) {
@@ -287,7 +285,7 @@ function renderCondition(condition: unknown) {
   if (isCompundEocCondition(condition)) {
     const classes = "flex flex-row items-center gap-2 border-gray-300 border p-1";
     const classes2 = "ml-4 border border-gray-300 p-1";
-    if (condition.and) {
+    if ("and" in condition) {
       return (
         <div class={classes}>
           <div>AND</div>
@@ -296,7 +294,7 @@ function renderCondition(condition: unknown) {
           </div>
         </div>
       );
-    } else if (condition.or) {
+    } else if ("or" in condition) {
       return (
         <div class={classes}>
           <div>OR</div>
@@ -305,7 +303,7 @@ function renderCondition(condition: unknown) {
           </div>
         </div>
       );
-    } else if (condition.not) {
+    } else if ("not" in condition) {
       return (
         <div class={classes}>
           <div>NOT</div>
@@ -314,61 +312,32 @@ function renderCondition(condition: unknown) {
       );
     }
   }
-  if (isLeafEocCondition(condition) && typeof condition === "string") {
-    return <span>{condition}</span>;
-  } else if (isLeafEocCondition(condition) && typeof condition !== "string") {
+  if (isLeafEocCondition(condition)) {
     console.log(condition);
+    const renderItem = (c: LeafEocCondition) => {
+      if (typeof c === "string") {
+        return <span>{c}</span>;
+      }
+      if ("math" in c) {
+        return (
+          <tr>
+            <td>math: {Array.isArray(condition.math) ? condition.math.join("") : condition.math}</td>
+          </tr>
+        );
+      }
+
+      const k = Object.keys(c)[0];
+      return (
+        <tr>
+          <td>
+            {k}: {k in c && String(c[k])}
+          </td>
+        </tr>
+      );
+    };
     return (
       <table>
-        <tbody>
-          {condition.not && (
-            <>
-              <tr>
-                <td>not</td>
-              </tr>
-              <tr>
-                <td>{condition.not}</td>
-              </tr>
-            </>
-          )}
-          {condition.math && (
-            <>
-              <tr>
-                <td>math: {Array.isArray(condition.math) ? condition.math.join("") : condition.math}</td>
-              </tr>
-            </>
-          )}
-          {condition.one_in_chance && (
-            <>
-              <tr>
-                <td>one_in_chance</td>
-              </tr>
-              <tr>
-                <td>{condition.one_in_chance}</td>
-              </tr>
-            </>
-          )}
-          {condition.u_has_trait && (
-            <>
-              <tr>
-                <td>u_has_trait</td>
-              </tr>
-              <tr>
-                <td>{condition.u_has_trait}</td>
-              </tr>
-            </>
-          )}
-          {condition.u_has_item && (
-            <>
-              <tr>
-                <td>u_has_item</td>
-              </tr>
-              <tr>
-                <td>{condition.u_has_item}</td>
-              </tr>
-            </>
-          )}
-        </tbody>
+        <tbody>{renderItem(condition)}</tbody>
       </table>
     );
   }
