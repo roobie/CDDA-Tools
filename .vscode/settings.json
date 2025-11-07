@@ -1,0 +1,5 @@
+{
+    "prettier.bracketSameLine": true,
+    "prettier.htmlWhitespaceSensitivity": "css",
+    "editor.formatOnSave": true
+}
