@@ -1,11 +1,33 @@
-import { Type as T, type Static } from "@sinclair/typebox";
+import { Any, Type as T, type Static } from "@sinclair/typebox";
 import { TypeCompiler } from "@sinclair/typebox/compiler";
 
-export const MathSchema = T.Object({
-  math: T.Union([T.Array(T.String()), T.String()]),
-});
+export const ValueTypeSchema = T.Union([T.String(), T.Number(), T.Boolean()]);
+
+export const VariableObjectSchema = T.Union([
+  T.Object({ global_val: T.String() }),
+  T.Object({ context_val: T.String() }),
+  T.Object({ u_val: T.String() }),
+  T.Object({ npc_val: T.String() }),
+  T.Object({ var_val: T.String() }),
+]);
+
+export const MathSchema = T.Object(
+  {
+    math: T.Union([T.Array(T.String()), T.String()]),
+  },
+  { additionalProperties: true }
+);
+type Math = Static<typeof MathSchema>;
+export const MathValidator = TypeCompiler.Compile(MathSchema);
+export function isMath(data: unknown): data is Math {
+  return MathValidator.Check(data);
+}
+
+export const AnyValueSchema = T.Union([ValueTypeSchema, VariableObjectSchema, MathSchema]);
+export type AnyValue = Static<typeof AnyValueSchema>;
+
 export const OneInChanceSchema = T.Object({
-  one_in_chance: T.Number(),
+  one_in_chance: AnyValueSchema,
 });
 
 export const LeafEocConditionSchema = T.Union([
@@ -144,6 +166,7 @@ if (
 }
 
 export const EocItemSchema = T.Object({
+  recurrence: T.Optional(T.String()),
   id: T.String(),
   type: T.Optional(T.Literal("effect_on_condition")),
   condition: T.Optional(EocConditionSchema),

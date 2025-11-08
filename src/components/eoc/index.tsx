@@ -10,7 +10,9 @@ import {
   isEocEffect,
   isEocItem,
   isLeafEocCondition,
+  isMath,
   LeafEocConditionValidator,
+  type AnyValue,
   type EocItem,
   type LeafEocCondition,
 } from "@/types/cdda";
@@ -30,6 +32,9 @@ const uiState = {
 
   // loadedNode: "effects_on_condition\\general_conditions.json",
   // initialIndex: 0,
+
+  loadedNode: "effects_on_condition\\generalized_eocs.json",
+  initialIndex: 1,
 };
 uiState.expandedNodes.add("json");
 uiState.expandedNodes.add("effects_on_condition");
@@ -314,14 +319,40 @@ function renderCondition(condition: unknown) {
   }
   if (isLeafEocCondition(condition)) {
     console.log(condition);
+    const renderAnyValue = (val: AnyValue) => {
+      if (typeof val === "string" || typeof val === "number" || typeof val === "boolean") {
+        return <span>{String(val)}</span>;
+      } else if (isMath(val)) {
+        return <span>math: {Array.isArray(val.math) ? val.math.join("") : val.math}</span>;
+      } else if ("global_val" in val) {
+        return <span>global_val: {val.global_val}</span>;
+      } else if ("context_val" in val) {
+        return <span>context_val: {val.context_val}</span>;
+      } else if ("u_val" in val) {
+        return <span>u_val: {val.u_val}</span>;
+      } else if ("npc_val" in val) {
+        return <span>npc_val: {val.npc_val}</span>;
+      } else if ("var_val" in val) {
+        return <span>var_val: {val.var_val}</span>;
+      } else {
+        return <span>Unknown AnyValue</span>;
+      }
+    };
     const renderItem = (c: LeafEocCondition) => {
       if (typeof c === "string") {
         return <span>{c}</span>;
       }
-      if ("math" in c) {
+      if (isMath(c)) {
         return (
           <tr>
-            <td>math: {Array.isArray(condition.math) ? condition.math.join("") : condition.math}</td>
+            <td>math: {Array.isArray(c.math) ? c.math.join("") : c.math}</td>
+          </tr>
+        );
+      }
+      if ("one_in_chance" in c) {
+        return (
+          <tr>
+            <td>one_in_chance: {renderAnyValue(c.one_in_chance)}</td>
           </tr>
         );
       }
@@ -330,7 +361,7 @@ function renderCondition(condition: unknown) {
       return (
         <tr>
           <td>
-            {k}: {k in c && String(c[k])}
+            {k}: {k in c && String((c as any)[k])}
           </td>
         </tr>
       );
