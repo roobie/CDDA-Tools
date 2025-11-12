@@ -44,6 +44,10 @@ export const LeafEocConditionSchema = T.Union([
     u_has_item: T.Optional(T.String()),
   }),
   T.Object({
+    u_near_om_location: VariableObjectSchema,
+    range: T.Number(),
+  }),
+  T.Object({
     not: T.Optional(T.String()),
   }),
 ]);

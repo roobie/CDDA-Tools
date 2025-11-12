@@ -1,6 +1,7 @@
 @import "tailwindcss";
-@plugin "daisyui" {
-  themes:
-    fantasy --default,
-    forest --prefersdark;
+@plugin "daisyui";
+
+html,
+body {
+  @apply bg-gray-900 text-gray-100 font-sans;
 }

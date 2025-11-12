@@ -27,8 +27,8 @@ const uiState = {
   // initialIndex: 2,
   // initialIndex: 6,
 
-  loadedNode: "item_eocs.json",
-  initialIndex: 11,
+  // loadedNode: "item_eocs.json",
+  // initialIndex: 11,
 
   // loadedNode: "effects_on_condition\\general_conditions.json",
   // initialIndex: 0,
@@ -78,7 +78,7 @@ export function EocView() {
       toReturn.push(
         <div class="flex-1">
           <EocItemView instance={item} />
-        </div>,
+        </div>
       );
     } else {
       const validationErrors = EocItemValidator.Errors(item);
@@ -354,6 +354,18 @@ function renderCondition(condition: unknown) {
           <tr>
             <td>one_in_chance: {renderAnyValue(c.one_in_chance)}</td>
           </tr>
+        );
+      }
+      if ("u_near_om_location" in c) {
+        return (
+          <>
+            <tr>
+              <td>u_near_om_location: {renderAnyValue(c.u_near_om_location)}</td>
+            </tr>
+            <tr>
+              <td>range: {c.range}</td>
+            </tr>
+          </>
         );
       }
 
